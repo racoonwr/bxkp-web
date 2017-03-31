@@ -182,10 +182,10 @@ class DBTable extends React.PureComponent {
   refresh = async() => {
     const res = await this.select(this.state.queryObj, this.state.currentPage, this.state.pageSize);
     //message.success('查询成功');
-    if (res.success) {
+    if (res.code == 1) {
       this.setState({
         data: res.data,
-        total: res.total,
+        total: res.data.length,
         tableLoading: false,
       });
     } else {

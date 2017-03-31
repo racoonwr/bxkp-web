@@ -73,7 +73,8 @@ class Ajax {
   }
 
   post(url, data, opts = {}) {
-    return this.requestWrapper('POST', url, {...opts, data});
+    const headers = {'Content-Type': 'application/json'};
+    return this.requestWrapper('POST', url, {...opts, data,headers});
   }
 
   // 业务方法
@@ -131,7 +132,7 @@ class CRUDUtil {
    * @returns {*}
    */
   select(queryObj) {
-    return this.ajax.post(`${globalConfig.getAPIPath()}/${this.tableName}/select`, queryObj);
+    return this.ajax.post(`${globalConfig.getAPIPath()}${this.tableName}/select`, queryObj);
   }
 
   /**

@@ -19,7 +19,7 @@ class Login extends React.PureComponent {
   // 一般而言公司内部都会提供基于LDAP的统一登录, 用到这个登录组件的场景应该挺少的
 
   state = {
-    username: '',  // 当前输入的用户名
+    loginName: '',  // 当前输入的用户名
     password: '',  // 当前输入的密码
     requesting: false, // 当前是否正在请求服务端接口
   };
@@ -27,7 +27,7 @@ class Login extends React.PureComponent {
   // controlled components
 
   handleUsernameInput = (e) => {
-    this.setState({username: e.target.value});
+    this.setState({loginName: e.target.value});
   };
 
   handlePasswordInput = (e) => {
@@ -44,20 +44,20 @@ class Login extends React.PureComponent {
     this.setState({requesting: true});
     const hide = message.loading('正在验证...', 0);
 
-    const username = this.state.username;
+    const loginName = this.state.loginName;
     const password = this.state.password;
-    logger.debug('username = %s, password = %s', username, password);
+    logger.debug('loginName = %s, password = %s', loginName, password);
 
     try {
       // 服务端验证
-      const res = await ajax.login(username, password);
+      const res = await ajax.login(loginName, password);
       hide();
       logger.debug('login validate return: result %o', res);
 
-      if (res.success) {
+      if (res.code == 1) {
         message.success('登录成功');
         // 如果登录成功, 触发一个loginSuccess的action, payload就是登录后的用户名
-        this.props.handleLoginSuccess(res.data);
+        this.props.handleLoginSuccess(loginName);
       } else {
         message.error(`登录失败: ${res.message}, 请联系管理员`);
         this.setState({requesting: false});
@@ -87,7 +87,7 @@ class Login extends React.PureComponent {
         <div className="login">
           <h1>{globalConfig.name}</h1>
           <form onSubmit={this.handleSubmit}>
-            <input className="login-input" type="text" value={this.state.username}
+            <input className="login-input" type="text" value={this.state.loginName}
                    onChange={this.handleUsernameInput} placeholder="用户名" required="required"/>
             <input className="login-input" type="password" value={this.state.password}
                    onChange={this.handlePasswordInput} placeholder="密码" required="required"/>

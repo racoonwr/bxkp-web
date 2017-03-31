@@ -4,10 +4,8 @@ import {ACTION_KEY} from '../components/DBTable/InnerTableRenderUtils';
 const logger = new Logger('mockAjax');
 
 const result = {  // 暂存mock的ajax返回, 总共有5个字段
-  success: true,
-  code: 0,
+  code: 1,
   message: 'just a mock ;) ',
-  total: 10000,
   data: {},
 };
 
@@ -29,8 +27,7 @@ const mockResult = (tableName, queryObj) => {
   } catch (e) {
     logger.error('can not find dataSchema file for table %s', tableName);
     // 设置返回结果为失败
-    result.success = false;
-    result.code = 200;
+    result.code = 2;
     result.message = `can not find dataSchema file for table ${tableName}`;
     return;
   }
@@ -87,7 +84,8 @@ const mockResult = (tableName, queryObj) => {
               record[column.key] = `mock page=${queryObj.page} ${i}`;
               break;
             case 'datetime':
-              record[column.key] = new Date().plusDays(i).format('yyyy-MM-dd HH:mm:ss');
+              // record[column.key] = new Date().plusDays(i).format('yyyy-MM-dd HH:mm:ss');
+              record[column.key] = null;
               break;
             default:
               logger.error('unsupported dataType %s', column.dataType);
@@ -96,8 +94,6 @@ const mockResult = (tableName, queryObj) => {
     });
     tmp.push(record);
   }
-
-  result.success = true;
   result.data = tmp;
 };
 
@@ -173,7 +169,6 @@ class MockAjax {
 
   getCurrentUser() {
     return mockPromise(resolve => {
-      result.success = true;
       result.data = 'guest';
       resolve(result);
     });
@@ -181,13 +176,12 @@ class MockAjax {
 
   login(username, password) {
     return mockPromise(resolve => {
-      if (username === 'guest' && password === 'guest') {
-        result.success = true;
+      // if (username === 'guest' && password === 'guest') {
+      if (true) {
         result.data = 'guest';
         resolve(result);
       } else {
-        result.success = false;
-        result.code = 100;
+        result.code = 2;
         result.message = 'invalid username or password';
         resolve(result);
       }
@@ -222,7 +216,6 @@ class MockCRUDUtil {
       mockResult(this.tableName, {page: Math.floor(Math.random() * 10000), pageSize: 1});  // 为了生成一个主键, 反正是测试用的
       const tmpObj = result.data[0];
       Object.assign(tmpObj, dataObj);
-      result.success = true;
       result.data = tmpObj;
       resolve(result);
     });
@@ -230,7 +223,6 @@ class MockCRUDUtil {
 
   update(keys = [], dataObj) {
     return mockPromise(resolve => {
-      result.success = true;
       result.data = keys.length;
       resolve(result);
     });
@@ -238,7 +230,6 @@ class MockCRUDUtil {
 
   delete(keys = []) {
     return mockPromise(resolve => {
-      result.success = true;
       result.data = keys.length;
       resolve(result);
     });
