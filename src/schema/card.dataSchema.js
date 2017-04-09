@@ -27,6 +27,8 @@ module.exports = [
     showType: 'normal',  // 默认是normal, 就是最普通的输入框
 
     showInTable: true,  // 这一列是否要在table中展示, 默认true
+    showInForm: false,
+
     disabled: false, // 表单中这一列是否禁止编辑, 默认false
 
     // 扩展接口, 决定了这一列渲染成什么样子
@@ -49,7 +51,7 @@ module.exports = [
     title: '卡片类型',
     dataType: 'int',
     showType: 'radio',
-    options: [{key: '1', value: '类型1'}, {key: '2', value: '类型2'},{key: '0', value: '未知类型'}],
+    options: [{key: '1', value: '类型1'}, {key: '2', value: '类型2'}, {key: '0', value: '未知类型'}],
     defaultValue: '0'
   },
   {
@@ -57,36 +59,42 @@ module.exports = [
     title: '类型名字',
     dataType: 'varchar',
     showInTable: false,
+    showInForm: false
   },
   {
     key: 'status',
     title: '卡片状态',
     dataType: 'int',
     showType: 'radio',
-    options: [{key: '1', value: '已激活'}, {key: '2', value: '已使用'},{key: '0', value: '未使用'}],
-    defaultValue: '0'
+    options: [{key: '1', value: '已激活'}, {key: '2', value: '已使用'}, {key: '0', value: '未使用'}],
+    defaultValue: '0',
+    showInForm: false
   },
   {
     key: 'agentId',
     title: '代理商',
     dataType: 'int',
     showInTable: false,
+    showInForm: false
   },
   {
     key: 'agentName',
     title: '代理商',
-    dataType: 'varchar'
+    dataType: 'varchar',
+    showInForm: false
   },
   {
     key: 'customerId',
     title: '会员',
     dataType: 'int',
     showInTable: false,
+    showInForm: false
   },
   {
     key: 'customerName',
     title: '会员',
-    dataType: 'varchar'
+    dataType: 'varchar',
+    showInForm: false
   },
   {
     key: 'activeTime',
@@ -94,11 +102,13 @@ module.exports = [
     // 对于日期类型要注意下, 在js端日期被表示为yyyy-MM-dd HH:mm:ss的字符串, 在java端日期被表示为java.util.Date对象
     // fastjson反序列化时可以自动识别
     // 序列化倒是不用特别配置, 看自己需求, fastjson会序列化为一个字符串, 前端原样展示
-    dataType: 'datetime'
+    dataType: 'datetime',
+    showInForm: false
   },
   {
     key: 'usedTime',
     title: '使用时间',
     dataType: 'datetime',
+    showInForm: false
   }
 ];

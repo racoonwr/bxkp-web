@@ -223,6 +223,11 @@ class DBTable extends React.PureComponent {
     tmpObj.page = page;
     tmpObj.pageSize = pageSize;
 
+    for (var key in tmpObj) {
+      if (tmpObj[key] === '')
+        delete tmpObj[key];
+    }
+
     // 每次查询时, 要显示一个提示, 同时table组件也要变为loading状态
     const hide = message.loading('正在查询...', 0);
     try {
@@ -271,11 +276,11 @@ class DBTable extends React.PureComponent {
     logger.debug('handleFormSubmit, queryObj = %o', queryObj);
     // 这时查询条件已经变了, 要从第一页开始查
     const res = await this.select(queryObj, 1, this.state.pageSize);
-    if (res.success) {
+    if (res.code == 1) {
       this.setState({
         currentPage: 1,
         data: res.data,
-        total: res.total,
+        total: res.data.length,
         tableLoading: false,
         queryObj: queryObj,
       });

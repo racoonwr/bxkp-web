@@ -85,7 +85,7 @@ class Ajax {
    * @returns {*}
    */
   getCurrentUser() {
-    return this.get(`${globalConfig.getAPIPath()}${globalConfig.login.getCurrentUser}`);
+    return this.get(`${globalConfig.getAPIPath()}/${globalConfig.login.getCurrentUser}`);
   }
 
   /**
@@ -96,7 +96,7 @@ class Ajax {
    */
   login(username, password) {
     const headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-    return this.post(`${globalConfig.getAPIPath()}${globalConfig.login.validate}`, {username, password}, {headers});
+    return this.post(`${globalConfig.getAPIPath()}/${globalConfig.login.validate}`, {username, password}, {headers});
   }
 
   /**
@@ -132,7 +132,7 @@ class CRUDUtil {
    * @returns {*}
    */
   select(queryObj) {
-    return this.ajax.post(`${globalConfig.getAPIPath()}${this.tableName}/select`, queryObj);
+    return this.ajax.post(`${globalConfig.getAPIPath()}/${this.tableName}/select`, queryObj);
   }
 
   /**
