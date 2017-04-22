@@ -549,7 +549,7 @@ class InnerTable extends React.PureComponent {
     try {
       const res = await CRUD.insert(obj);
       hide();
-      if (res.success) {
+      if (res.code == 1) {
         notification.success({
           message: '新增成功',
           description: this.primaryKey ? `新增数据行 主键=${res.data[this.primaryKey]}` : '',
@@ -593,10 +593,10 @@ class InnerTable extends React.PureComponent {
     try {
       const res = await CRUD.update(keys, obj);
       hide();
-      if (res.success) {
+      if (res.code == 1) {
         notification.success({
           message: '更新成功',
-          description: `更新${res.data}条数据`,
+          description: `更新1条数据`,
           duration: 3,
         });
 
@@ -634,7 +634,7 @@ class InnerTable extends React.PureComponent {
     try {
       const res = await CRUD.delete(keys);
       hide();
-      if (res.success) {
+      if (res.code == 1) {
         notification.success({
           message: '删除成功',
           description: `删除${res.data}条数据`,
@@ -700,7 +700,9 @@ class InnerTable extends React.PureComponent {
           {/*antd的modal实现中, 如果modal不显示, 那内部的组件是不会mount的, 导致第一次访问this.formComponent会undefined, 而我又需要设置表单的值, 所以新增一个initData属性*/}
           <Modal title={this.state.modalTitle} visible={this.state.modalVisible} onOk={this.handleModalOk}
                  onCancel={this.hideModal} maskClosable={false} width={550}>
-            <FormComponent ref={(input) => { this.formComponent = input; }} initData={this.formInitData}
+            <FormComponent ref={(input) => {
+              this.formComponent = input;
+            }} initData={this.formInitData}
                            forUpdate={!this.state.modalInsert} keysToUpdate={this.keysToUpdate}/>
           </Modal>
         </div>
@@ -716,7 +718,9 @@ class InnerTable extends React.PureComponent {
                onOk={this.handleComponentModalOk} maskClosable={false}>
           {/*render方法首次调用时, this.updateComponent必定是undefined*/}
           {this.updateComponent &&
-          <UpdateComponent ref={(input) => { this.updateComponentMounted = input; }}
+          <UpdateComponent ref={(input) => {
+            this.updateComponentMounted = input;
+          }}
                            record={this.updateComponentRecord}/>}
         </Modal>
 

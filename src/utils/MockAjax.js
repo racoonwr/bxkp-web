@@ -234,6 +234,13 @@ class MockCRUDUtil {
       resolve(result);
     });
   }
+
+  getOptionsList(columnName){
+    return mockPromise(resolve => {
+      result.data = columnName
+      resolve(result);
+    });
+  }
 }
 
 export default MockAjax;

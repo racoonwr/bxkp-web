@@ -34,8 +34,8 @@ const routes = (
         <IndexRoute component={Welcome}/>
         <Route path="card" tableName="card" getComponent={DBTableContainer}/>
         <Route path="agent" tableName="agent" getComponent={DBTableContainer}/>
-        <Route path="alliance" tableName="alliance" getComponent={DBTableContainer}/>
-        <Route path="info" tableName="info" getComponent={DBTableContainer}/>
+        <Route path="joinin" tableName="joinin" getComponent={DBTableContainer}/>
+        <Route path="policy" tableName="policy" getComponent={DBTableContainer}/>
         <Route path="*" component={Error}/>
       </Route>
     </Router>

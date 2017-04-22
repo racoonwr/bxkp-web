@@ -33,54 +33,43 @@ module.exports = [
     render: (text, record) => text,
   },
   {
-    key: 'cardNo',
-    title: '卡片编号',
-    dataType: 'varchar',  // 对于普通的input框, 可以设置addonBefore/addonAfter
-    defaultValue: '无'
+    key: 'cardId',
+    title: '卡片Id',
+    dataType: 'int',  // 对于普通的input框, 可以设置addonBefore/addonAfter
   },
   {
-    key: 'password',
-    title: '密码',
+    key: 'holder',
+    title: '投保人',
     dataType: 'varchar',
-    defaultValue: '无'
   },
   {
-    key: 'type',
-    title: '卡片类型',
+    key: 'recognizee',
+    title: '被投保人',
+    dataType: 'varchar',
+  },
+  {
+    key: 'exportStatus',
+    title: '导出状态',
     dataType: 'int',
     showType: 'radio',
-    options: [{key: '1', value: '类型1'}, {key: '2', value: '类型2'},{key: '0', value: '未知类型'}],
-    defaultValue: '0'
+    options: [{key: '1', value: '已导出'},{key: '0', value: '未导出'}],
   },
   {
-    key: 'state',
-    title: '卡片状态',
-    dataType: 'int',
-    showType: 'radio',
-    options: [{key: '1', value: '状态1'}, {key: '2', value: '状态2'},{key: '0', value: '未知状态'}],
-    defaultValue: '0'
-  },
-  {
-    key: 'agentId',
-    title: '代理商id',
-    dataType: 'int'
-  },
-  {
-    key: 'customerId',
-    title: '会员id',
-    dataType: 'int'
-  },
-  {
-    key: 'activeTime',
-    title: '激活时间',
+    key: 'startTime',
+    title: '生效时间',
     // 对于日期类型要注意下, 在js端日期被表示为yyyy-MM-dd HH:mm:ss的字符串, 在java端日期被表示为java.util.Date对象
     // fastjson反序列化时可以自动识别
     // 序列化倒是不用特别配置, 看自己需求, fastjson会序列化为一个字符串, 前端原样展示
     dataType: 'datetime'
   },
   {
-    key: 'usedTime',
-    title: '使用时间',
+    key: 'endTime',
+    title: '失效时间',
+    dataType: 'datetime',
+  },
+  {
+    key: 'createTime',
+    title: '创建时间',
     dataType: 'datetime',
   }
 ];

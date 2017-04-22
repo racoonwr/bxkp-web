@@ -141,10 +141,26 @@ class DBTable extends React.PureComponent {
       this.errorMsg = `加载${tableName}表的querySchema出错, 请检查配置`;
       return;
     }
+    // this.initQuerySchemaOptions();
 
     // 尝试加载dataSchema
     try {
       this.dataSchema = require(`../../schema/${tableName}.dataSchema.js`);
+      // this.dataSchema.forEach((field) => {
+      //   if (field.showType === 'select') {
+      //     if (field.optionsColumnName) {
+      //       const res = this.getOptionsList(field.optionsColumnName);
+      //       if (res.code == 1) {
+      //         field.options = res.data;
+      //       } else {
+      //         logger.error('load query schema %s options error: %s', field.optionsColumnName, res.message);
+      //         this.inited = false;
+      //         this.errorMsg = `加载${tableName}表的${field.optionsColumnName}字段的options出错, 请检查服务器`;
+      //         return;
+      //       }
+      //     }
+      //   }
+      // });
     } catch (e) {
       logger.error('load data schema error: %o', e);
       this.inited = false;
@@ -184,8 +200,8 @@ class DBTable extends React.PureComponent {
     //message.success('查询成功');
     if (res.code == 1) {
       this.setState({
-        data: res.data,
-        total: res.data.length,
+        data: res.data.records,
+        total: res.data.total,
         tableLoading: false,
       });
     } else {
@@ -241,11 +257,45 @@ class DBTable extends React.PureComponent {
       logger.error('select exception, %o', ex);
       hide();
       const res = {};  // 手动构造一个res返回
-      res.success = false;
+      res.code = 0;
       res.message = `网络请求出错: ${ex.message}`;
       return Promise.resolve(res);  // 还是要返回一个promise对象
     }
-  }
+  };
+
+  // initQuerySchemaOptions = async() => {
+  //   this.querySchema.forEach((field) => {
+  //     if (field.showType === 'select') {
+  //       if (field.optionsColumnName) {
+  //         const res = this.getOptionsList(field.optionsColumnName);
+  //         if (res.code == 1) {
+  //           field.options = res.data;
+  //         } else {
+  //           logger.error('load query schema %s options error: %s', field.optionsColumnName, res.message);
+  //           this.inited = false;
+  //           this.errorMsg = `加载${tableName}表的${field.optionsColumnName}字段的options出错, 请检查服务器`;
+  //           return;
+  //         }
+  //       }
+  //     }
+  //   });
+  // };
+
+
+  // async getOptionsList(columnNames) {
+  //   try {
+  //     const CRUD = ajax.CRUD(this.tableName);
+  //     const res = await CRUD.getOptionsList(columnNames);
+  //     logger.debug('load optionsColumnName res : %o', res);
+  //     return res;
+  //   } catch (ex) {  // 统一的异常处理, 上层方法不用关心
+  //     logger.error('getOptionsList exception, %o', ex);
+  //     const res = {};  // 手动构造一个res返回
+  //     res.code = 0;
+  //     res.message = `网络请求出错: ${ex.message}`;
+  //     return Promise.resolve(res);  // 还是要返回一个promise对象
+  //   }
+  // }
 
   /**
    * 切换分页时触发查询
@@ -255,11 +305,11 @@ class DBTable extends React.PureComponent {
   handlePageChange = async(page) => {
     logger.debug('handlePageChange, page = %d', page);
     const res = await this.select(this.state.queryObj, page, this.state.pageSize);
-    if (res.success) {
+    if (res.code == 1) {
       this.setState({
         currentPage: page,
-        data: res.data,
-        total: res.total,
+        data: res.data.records,
+        total: res.data.total,
         tableLoading: false,
       });
     } else {
@@ -279,8 +329,8 @@ class DBTable extends React.PureComponent {
     if (res.code == 1) {
       this.setState({
         currentPage: 1,
-        data: res.data,
-        total: res.data.length,
+        data: res.data.records,
+        total: res.data.total,
         tableLoading: false,
         queryObj: queryObj,
       });

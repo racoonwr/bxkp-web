@@ -28,59 +28,72 @@ module.exports = [
 
     showInTable: true,  // 这一列是否要在table中展示, 默认true
     disabled: false, // 表单中这一列是否禁止编辑, 默认false
-
+    showInForm: false,
     // 扩展接口, 决定了这一列渲染成什么样子
     render: (text, record) => text,
   },
   {
-    key: 'cardNo',
-    title: '卡片编号',
+    key: 'wxId',
+    title: '微信OpenId',
     dataType: 'varchar',  // 对于普通的input框, 可以设置addonBefore/addonAfter
-    defaultValue: '无'
+    defaultValue: '无',
+    showInForm: false
   },
   {
-    key: 'password',
-    title: '密码',
+    key: 'name',
+    title: '代理商姓名',
     dataType: 'varchar',
     defaultValue: '无'
   },
   {
-    key: 'type',
-    title: '卡片类型',
+    key: 'phoneNumber',
+    title: '手机号',
+    dataType: 'varchar',
+    defaultValue: '无'
+  },
+  {
+    key: 'applyType',
+    title: '申请类型',
     dataType: 'int',
     showType: 'radio',
     options: [{key: '1', value: '类型1'}, {key: '2', value: '类型2'},{key: '0', value: '未知类型'}],
-    defaultValue: '0'
+    defaultValue: '0',
+    showInForm: false
   },
   {
-    key: 'state',
-    title: '卡片状态',
+    key: 'status',
+    title: '代理商状态',
     dataType: 'int',
     showType: 'radio',
     options: [{key: '1', value: '状态1'}, {key: '2', value: '状态2'},{key: '0', value: '未知状态'}],
-    defaultValue: '0'
+    defaultValue: '0',
   },
   {
-    key: 'agentId',
-    title: '代理商id',
-    dataType: 'int'
+    key: 'createType',
+    title: '创建类型',
+    dataType: 'int',
+    defaultValue: 1,
+    showInForm: false
   },
   {
-    key: 'customerId',
-    title: '会员id',
-    dataType: 'int'
+    key: 'createTime',
+    title: '添加时间',
+    dataType: 'datetime',
+    showInForm: false
   },
   {
-    key: 'activeTime',
-    title: '激活时间',
+    key: 'bindTime',
+    title: '绑定时间',
     // 对于日期类型要注意下, 在js端日期被表示为yyyy-MM-dd HH:mm:ss的字符串, 在java端日期被表示为java.util.Date对象
     // fastjson反序列化时可以自动识别
     // 序列化倒是不用特别配置, 看自己需求, fastjson会序列化为一个字符串, 前端原样展示
-    dataType: 'datetime'
+    dataType: 'datetime',
+    showInForm: false
   },
   {
-    key: 'usedTime',
-    title: '使用时间',
+    key: 'unbindTime',
+    title: '解绑时间',
     dataType: 'datetime',
+    showInForm: false
   }
 ];

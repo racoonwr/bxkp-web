@@ -33,6 +33,7 @@ class Ajax {
       // 是否是跨域请求
       if (globalConfig.isCrossDomain()) {
         tmp.withCredentials();
+        tmp.set('Access-Control-Allow-Origin', globalConfig.api.host);
       }
       // 设置全局的超时时间
       if (globalConfig.api.timeout && !isNaN(globalConfig.api.timeout)) {
@@ -74,7 +75,7 @@ class Ajax {
 
   post(url, data, opts = {}) {
     const headers = {'Content-Type': 'application/json'};
-    return this.requestWrapper('POST', url, {...opts, data,headers});
+    return this.requestWrapper('POST', url, {...opts, data, headers});
   }
 
   // 业务方法
@@ -94,9 +95,12 @@ class Ajax {
    * @param username
    * @param password
    */
-  login(username, password) {
+  login(loginName, password) {
     const headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-    return this.post(`${globalConfig.getAPIPath()}/${globalConfig.login.validate}`, {username, password}, {headers});
+    return this.post(`${globalConfig.getAPIPath()}/${globalConfig.login.validate}`, {
+      loginName,
+      password
+    }, {headers});
   }
 
   /**
@@ -166,6 +170,10 @@ class CRUDUtil {
   delete(keys = []) {
     const tmp = keys.join(',');
     return this.ajax.get(`${globalConfig.getAPIPath()}/${this.tableName}/delete`, {params: {keys: tmp}});
+  }
+
+  getOptionsList(columnName){
+    return this.ajax.get(`${globalConfig.getAPIPath()}/${this.tableName}/options/${columnName}`);
   }
 }
 

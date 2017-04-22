@@ -26,12 +26,12 @@ const sidebarMenu = [
     icon: 'eye',
   },
   {
-    key: 'alliance',
+    key: 'joinin',
     name: '加盟商管理',
     icon: 'clock-circle',
   },
   {
-    key: 'info',
+    key: 'policy',
     name: '投保信息管理',
     icon: 'book',
   }

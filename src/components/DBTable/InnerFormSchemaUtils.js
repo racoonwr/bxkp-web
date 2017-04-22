@@ -181,6 +181,7 @@ const SchemaUtils = {
   transformSelect(field) {
     logger.debug('transform field %o to Select component', field);
     const options = [];
+
     field.options.forEach((option) => {
       options.push(<Option key={option.key} value={option.key}>{option.value}</Option>);
     });

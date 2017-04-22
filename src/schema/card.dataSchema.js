@@ -81,7 +81,7 @@ module.exports = [
     key: 'agentName',
     title: '代理商',
     dataType: 'varchar',
-    showInForm: false
+    showInForm: true
   },
   {
     key: 'customerId',

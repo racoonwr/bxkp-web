@@ -22,7 +22,8 @@ module.exports = [
     title: '状态',
     dataType: 'int',
     showType: 'select',  // 下拉框选择, antd版本升级后, option的key要求必须是string, 否则会有个warning, 后端反序列化时要注意
-    options: [{key: '1', value: '状态1'}, {key: '2', value: '状态2'}]
+    options: [{key: '1', value: '状态1'}, {key: '2', value: '状态2'}],
+    optionsColumnName: 'status',
   },
   {
     key: 'filter',  // 传递给后端的字段名
