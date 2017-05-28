@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router';
-import {UpdateGPA1, UpdateGPA2} from '../components/UpdateComponentDemo';
+import {UpdateGPA1, UpdateGPA2} from '../components/UpdateComponent';
 
 module.exports = [
   {

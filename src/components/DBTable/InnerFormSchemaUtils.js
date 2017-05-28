@@ -9,7 +9,8 @@ import {
   Icon,
   Radio,
   InputNumber,
-  Checkbox
+  Checkbox,
+  AutoComplete
 } from 'antd';
 import moment from 'moment';
 import Logger from '../../utils/Logger';
@@ -18,6 +19,8 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
 const Option = Select.Option;
+const AutoOption = AutoComplete.Option;
+const OptGroup = AutoComplete.OptGroup;
 
 const logger = Logger.getLogger('InnerFormSchemaUtils');
 
@@ -27,6 +30,8 @@ const logger = Logger.getLogger('InnerFormSchemaUtils');
 const schemaMap = new Map();
 // 暂存每个表对应的表单组件, key是表名, value是对应的react组件
 const formMap = new Map();
+
+var cache = true;
 
 /**
  * 这是一个工具类, 目的是将parse schema的过程独立出来
@@ -40,12 +45,13 @@ const SchemaUtils = {
    * @param schema
    * @returns {*}
    */
-  getForm(tableName, schema) {
-    if (formMap.has(tableName)) {
+  getForm(tableName, schema, autoCompleteOptions) {
+    if (formMap.has(tableName) && cache) {
       return formMap.get(tableName);
     } else {
-      const newForm = this.createForm(tableName, schema);
-      formMap.set(tableName, newForm);
+      const newForm = this.createForm(tableName, schema, autoCompleteOptions);
+      if (cache)
+        formMap.set(tableName, newForm);
       return newForm;
     }
   },
@@ -57,7 +63,7 @@ const SchemaUtils = {
    * @param schema
    * @returns {*}
    */
-  createForm(tableName, schema) {
+  createForm(tableName, schema, autoCompleteOptions) {
     // 蛋疼的this
     const that = this;
     // 如何动态生成一个组件? 如果用class的写法, 似乎不行...
@@ -69,10 +75,12 @@ const SchemaUtils = {
           this.schemaCallback = schemaMap.get(tableName);
           return;
         }
-        const schemaCallback = that.parse(schema);
-        schemaMap.set(tableName, schemaCallback);
+        const schemaCallback = that.parse(schema, autoCompleteOptions);
+        if (cache)
+          schemaMap.set(tableName, schemaCallback);
         this.schemaCallback = schemaCallback;
       },
+
       render() {
         // render的时候传入getFieldDecorator, 生成最终的jsx元素
         return this.schemaCallback(this.props.form.getFieldDecorator);
@@ -88,7 +96,7 @@ const SchemaUtils = {
    * @param schema 直接从tableName.querySchema.js文件中读出来的schema
    * @returns {function()} 一个函数, 这个函数的参数是getFieldDecorator, 执行后才会返回真正的jsx元素, 为啥不直接返回jsx元素而要返回函数呢, 因为antd的表单的限制, 想生成最终的元素必须要getFieldDecorator
    */
-  parse(schema) {
+  parse(schema, autoCompleteOptions) {
     // 用这两个变量去代表一个表单的schema
     const rows = [];
     let cols = [];
@@ -126,6 +134,10 @@ const SchemaUtils = {
           break;
         case 'between':
           cols.push(this.transformBetween(field));
+          break;
+        case 'search':
+          cache = false;
+          cols.push(this.transformSearch(field, autoCompleteOptions[field.columnName]));
           break;
         default:
           cols.push(this.transformNormal(field));
@@ -166,7 +178,7 @@ const SchemaUtils = {
   colWrapper(formItem, field) {
     return getFieldDecorator => (
       <Col key={field.key} sm={8}>
-        <FormItem key={field.key} label={field.title} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }}>
+        <FormItem key={field.key} label={field.title} labelCol={{span: 10}} wrapperCol={{span: 14}}>
           {formItem(getFieldDecorator)}
         </FormItem>
       </Col>
@@ -192,6 +204,43 @@ const SchemaUtils = {
       </Select>
     ), field);
   },
+
+  /**
+   * 将schema中的一列转换为搜索框
+   *
+   * @param field
+   */
+  transformSearch(field, data) {
+    if (!data) {
+      data = [{
+        value: '',
+        text: '无法匹配'
+      }];
+    } else {
+      cache = true;
+    }
+
+    const options = data.map(option =>
+      <AutoOption key={'option' + option.value} value={option.value}>
+        {option.text}
+      </AutoOption>);
+
+    return this.colWrapper(getFieldDecorator => getFieldDecorator(field.key, {initialValue: field.defaultValue})(
+      <AutoComplete
+        className="certain-category-search"
+        dropdownClassName="certain-category-search-dropdown"
+        dropdownMatchSelectWidth={false}
+        dropdownStyle={{width: 300}}
+        size="large"
+        style={{width: '100%'}}
+        dataSource={options}
+        placeholder={field.placeholder || '请输入'}
+      >
+        <Input suffix={<Icon type="search" className="certain-category-icon"/>}/>
+      </AutoComplete>
+    ), field);
+  },
+
 
   /**
    * 将schema中的一列转换为单选框
@@ -295,12 +344,12 @@ const SchemaUtils = {
       <Col key={`${field.key}Begin`} sm={8}>
         <Row>
           <Col span={16}>
-            <FormItem key={`${field.key}Begin`} label={field.title} labelCol={{ span: 15 }} wrapperCol={{ span: 9 }}>
+            <FormItem key={`${field.key}Begin`} label={field.title} labelCol={{span: 15}} wrapperCol={{span: 9}}>
               {beginFormItem(getFieldDecorator)}
             </FormItem>
           </Col>
           <Col span={7} offset={1}>
-            <FormItem key={`${field.key}End`} labelCol={{ span: 10 }} wrapperCol={{ span: 14 }}>
+            <FormItem key={`${field.key}End`} labelCol={{span: 10}} wrapperCol={{span: 14}}>
               {endFormItem(getFieldDecorator)}
             </FormItem>
           </Col>
@@ -344,14 +393,14 @@ const SchemaUtils = {
         return getFieldDecorator => (
           <div key={'datetimeBetweenDiv'}>
             <Col key={`${field.key}Begin`} sm={8}>
-              <FormItem key={`${field.key}Begin`} label={field.title} labelCol={{ span: 10 }}
-                        wrapperCol={{ span:14 }}>
+              <FormItem key={`${field.key}Begin`} label={field.title} labelCol={{span: 10}}
+                        wrapperCol={{span: 14}}>
                 {getFieldDecorator(`${field.key}Begin`, {initialValue: field.defaultValueBegin ? moment(field.defaultValueBegin) : null})
                 (<DatePicker showTime format="YYYY-MM-DD HH:mm:ss" placeholder={field.placeholderBegin || '开始日期'}/>)}
               </FormItem>
             </Col>
             <Col key={`${field.key}End`} sm={8}>
-              <FormItem key={`${field.key}End`} labelCol={{ span: 10 }} wrapperCol={{ span:14 }}>
+              <FormItem key={`${field.key}End`} labelCol={{span: 10}} wrapperCol={{span: 14}}>
                 {getFieldDecorator(`${field.key}End`, {initialValue: field.defaultValueEnd ? moment(field.defaultValueEnd) : null})
                 (<DatePicker showTime format="YYYY-MM-DD HH:mm:ss" placeholder={field.placeholderEnd || '结束日期'}/>)}
               </FormItem>

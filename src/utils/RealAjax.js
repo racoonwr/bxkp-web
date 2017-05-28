@@ -172,8 +172,8 @@ class CRUDUtil {
     return this.ajax.get(`${globalConfig.getAPIPath()}/${this.tableName}/delete`, {params: {keys: tmp}});
   }
 
-  getOptionsList(columnName){
-    return this.ajax.get(`${globalConfig.getAPIPath()}/${this.tableName}/options/${columnName}`);
+  getOptionsList(columnNames){
+    return this.ajax.post(`${globalConfig.getAPIPath()}/${this.tableName}/options`,columnNames);
   }
 }
 

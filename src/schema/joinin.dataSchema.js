@@ -2,6 +2,7 @@
  * Created by racoon on 2017/3/28.
  */
 import React from 'react';
+import {AcceptJoininApply} from '../components/UpdateComponent';
 
 // 定义某个表的dataSchema, 结构跟querySchema很相似, 见下面的例子
 // 注意: 所有的key不能重复
@@ -56,7 +57,7 @@ module.exports = [
     title: '申请类型',
     dataType: 'int',
     showType: 'radio',
-    options: [{key: '1', value: '类型1'}, {key: '2', value: '类型2'},{key: '0', value: '未知类型'}],
+    options: [{key: '1', value: '类型1'}, {key: '2', value: '类型2'}, {key: '0', value: '未知类型'}],
     defaultValue: '0',
     showInForm: false
   },
@@ -65,7 +66,7 @@ module.exports = [
     title: '加盟商状态',
     dataType: 'int',
     showType: 'radio',
-    options: [{key: '1', value: '状态1'}, {key: '2', value: '状态2'},{key: '0', value: '未知状态'}],
+    options: [{key: '1', value: '正常'}, {key: '2', value: '解绑'}, {key: '0', value: '待审批'}],
     defaultValue: '0',
   },
   {
@@ -73,7 +74,8 @@ module.exports = [
     title: '创建类型',
     dataType: 'int',
     defaultValue: 1,
-    showInForm: false
+    showInForm: false,
+    showInTable: false,
   },
   {
     key: 'createTime',
@@ -95,5 +97,18 @@ module.exports = [
     title: '解绑时间',
     dataType: 'datetime',
     showInForm: false
-  }
+  },
+  {
+    // 这个key是我预先定义好的, 注意不要冲突
+    key: 'singleRecordActions',
+    title: '操作',  // 列名
+    width: 200,  // 宽度
+    actions: [
+      {
+        name: '审批通过',
+        type: 'component',
+        component: AcceptJoininApply,  // 要渲染哪个组件, 这个组件会被渲染到modal中
+      },
+    ],
+  },
 ];

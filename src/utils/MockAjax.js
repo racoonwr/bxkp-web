@@ -235,9 +235,9 @@ class MockCRUDUtil {
     });
   }
 
-  getOptionsList(columnName){
+  getOptionsList(columnNames){
     return mockPromise(resolve => {
-      result.data = columnName
+      result.data = columnNames
       resolve(result);
     });
   }

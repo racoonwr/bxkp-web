@@ -41,10 +41,13 @@ class DBTable extends React.PureComponent {
     data: [],  // 表格中显示的数据
     tableLoading: false,  // 表格是否是loading状态
 
+    autoCompleteOptions: {},
+
     // 分页器的状态
     currentPage: 1,  // 当前第几页, 注意页码是从1开始的, 以前总是纠结页码从0还是1开始, 这里统一下, 跟显示给用户的一致
     pageSize: globalConfig.DBTable.pageSize || 50,  // pageSize默认值50, 这个值一旦初始化就是不可变的
     total: 0,  // 总共有多少条数据
+
   };
 
   // 代替componentWillMount
@@ -61,6 +64,7 @@ class DBTable extends React.PureComponent {
    */
   componentDidMount() {
     this.refresh();
+    this.initAutoCompleteOptions();
   }
 
   // 在react router中切换时, 组件不会重新mount, 只有props会变化
@@ -141,26 +145,10 @@ class DBTable extends React.PureComponent {
       this.errorMsg = `加载${tableName}表的querySchema出错, 请检查配置`;
       return;
     }
-    // this.initQuerySchemaOptions();
 
     // 尝试加载dataSchema
     try {
       this.dataSchema = require(`../../schema/${tableName}.dataSchema.js`);
-      // this.dataSchema.forEach((field) => {
-      //   if (field.showType === 'select') {
-      //     if (field.optionsColumnName) {
-      //       const res = this.getOptionsList(field.optionsColumnName);
-      //       if (res.code == 1) {
-      //         field.options = res.data;
-      //       } else {
-      //         logger.error('load query schema %s options error: %s', field.optionsColumnName, res.message);
-      //         this.inited = false;
-      //         this.errorMsg = `加载${tableName}表的${field.optionsColumnName}字段的options出错, 请检查服务器`;
-      //         return;
-      //       }
-      //     }
-      //   }
-      // });
     } catch (e) {
       logger.error('load data schema error: %o', e);
       this.inited = false;
@@ -195,10 +183,11 @@ class DBTable extends React.PureComponent {
   /**
    * 按当前的查询条件重新查询一次
    */
-  refresh = async() => {
+  refresh = async () => {
     const res = await this.select(this.state.queryObj, this.state.currentPage, this.state.pageSize);
     //message.success('查询成功');
     if (res.code == 1) {
+      logger.info('refresh tableName = %d', res.data.total);
       this.setState({
         data: res.data.records,
         total: res.data.total,
@@ -263,46 +252,12 @@ class DBTable extends React.PureComponent {
     }
   };
 
-  // initQuerySchemaOptions = async() => {
-  //   this.querySchema.forEach((field) => {
-  //     if (field.showType === 'select') {
-  //       if (field.optionsColumnName) {
-  //         const res = this.getOptionsList(field.optionsColumnName);
-  //         if (res.code == 1) {
-  //           field.options = res.data;
-  //         } else {
-  //           logger.error('load query schema %s options error: %s', field.optionsColumnName, res.message);
-  //           this.inited = false;
-  //           this.errorMsg = `加载${tableName}表的${field.optionsColumnName}字段的options出错, 请检查服务器`;
-  //           return;
-  //         }
-  //       }
-  //     }
-  //   });
-  // };
-
-
-  // async getOptionsList(columnNames) {
-  //   try {
-  //     const CRUD = ajax.CRUD(this.tableName);
-  //     const res = await CRUD.getOptionsList(columnNames);
-  //     logger.debug('load optionsColumnName res : %o', res);
-  //     return res;
-  //   } catch (ex) {  // 统一的异常处理, 上层方法不用关心
-  //     logger.error('getOptionsList exception, %o', ex);
-  //     const res = {};  // 手动构造一个res返回
-  //     res.code = 0;
-  //     res.message = `网络请求出错: ${ex.message}`;
-  //     return Promise.resolve(res);  // 还是要返回一个promise对象
-  //   }
-  // }
-
   /**
    * 切换分页时触发查询
    *
    * @param page
    */
-  handlePageChange = async(page) => {
+  handlePageChange = async (page) => {
     logger.debug('handlePageChange, page = %d', page);
     const res = await this.select(this.state.queryObj, page, this.state.pageSize);
     if (res.code == 1) {
@@ -322,7 +277,7 @@ class DBTable extends React.PureComponent {
    *
    * @param queryObj
    */
-  handleFormSubmit = async(queryObj) => {
+  handleFormSubmit = async (queryObj) => {
     logger.debug('handleFormSubmit, queryObj = %o', queryObj);
     // 这时查询条件已经变了, 要从第一页开始查
     const res = await this.select(queryObj, 1, this.state.pageSize);
@@ -336,6 +291,40 @@ class DBTable extends React.PureComponent {
       });
     } else {
       this.error(res.message);
+    }
+  };
+
+  initAutoCompleteOptions = async () => {
+    var allColumnName = [];
+    this.querySchema.forEach((field) => {
+      if (field.columnName)
+        allColumnName.push(field.columnName);
+    });
+    if (allColumnName.length > 0) {
+      const hide = message.loading('正在加载...', 0);
+      const res = await this.loadAutoCompleteOptions(allColumnName);
+      if (res.code == 1) {
+        hide();
+        this.setState({
+          autoCompleteOptions: res.data,
+        });
+      } else {
+        hide();
+        this.error(res.message);
+      }
+    }
+  };
+
+  async loadAutoCompleteOptions(columnNames) {
+    try {
+      const CRUD = ajax.CRUD(this.tableName);
+      return await CRUD.getOptionsList(columnNames);
+    } catch (ex) {  // 统一的异常处理, 上层方法不用关心
+      logger.error('search exception, %o', ex);
+      const res = {};  // 手动构造一个res返回
+      res.code = 0;
+      res.message = `网络请求出错: ${ex.message}`;
+      return Promise.resolve(res);  // 还是要返回一个promise对象
     }
   };
 
@@ -354,7 +343,7 @@ class DBTable extends React.PureComponent {
     return (
       <div>
         <InnerForm parentHandleSubmit={this.handleFormSubmit} schema={this.querySchema} tableConfig={this.tableConfig}
-                   tableName={this.tableName}/>
+                   tableName={this.tableName} autoCompleteOptions={this.state.autoCompleteOptions}/>
         <InnerTable data={this.state.data} tableLoading={this.state.tableLoading}
                     schema={this.dataSchema} refresh={this.refresh}
                     tableConfig={this.tableConfig} tableName={this.tableName}/>

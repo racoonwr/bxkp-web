@@ -174,16 +174,17 @@ class InnerForm extends React.PureComponent {
 
     // ajax是不能处理下载请求的, 必须交给浏览器自己去处理
     // 坏处是我就不知道用户的下载是否成功了
-    const url = `${globalConfig.getAPIPath()}/${this.props.tableName}/export`;
+    // const url = `${globalConfig.getAPIPath()}/${this.props.tableName}/export`;
+    const url = `${globalConfig.getAPIPath()}/file/${this.props.tableName}/download`;
     window.open(`${url}?q=${encodeURIComponent(JSON.stringify(newObj))}`);  // 注意url编码
   };
 
 
   render() {
-    const {tableName, schema, tableConfig} = this.props;
+    const {tableName, schema, tableConfig, autoCompleteOptions} = this.props;
 
     // 根据当前的tableName, 获取对应的表单组件
-    const FormComponent = FormSchemaUtils.getForm(tableName, schema);
+    const FormComponent = FormSchemaUtils.getForm(tableName, schema, autoCompleteOptions);
 
     // 上传相关配置
     const uploadProps = {
